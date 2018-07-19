@@ -23,7 +23,7 @@ public class SudoCalculator {
 
     private void init(){
         initData();
-        initEmptyIndexPairList();
+        initEmptyGridList();
         initAvailableNumbersMap();
         initAttemptedNumbersMap();
 
@@ -149,29 +149,29 @@ public class SudoCalculator {
     }
 
     //For a empty Grid, when an available number is removed from it, other affected Grid will be affected.
-    private void removeNumberFromAnIndexPair(Grid pair, int removedValue){
+    private void removeNumberFromAnIndexPair(Grid grid, int removedValue){
         Map<Integer,List<Integer>> map = this.getAvailableNumbersMap();
-        map.get(pair.getId()).remove((Integer) removedValue);
+        map.get(grid.getId()).remove((Integer) removedValue);
 
-        List<Grid> affectedPairs = getAffectedPairs(pair);
+        List<Grid> affectedPairs = getAffectedGrids(grid);
 
         //remove the chosen number from affected Grid
-        for (Grid pair1 : affectedPairs) {
-            List<Integer> availableNumbers = this.getAvailableNumbersMap().get(pair1.getId());
+        for (Grid grid1 : affectedPairs) {
+            List<Integer> availableNumbers = this.getAvailableNumbersMap().get(grid1.getId());
             availableNumbers.add(removedValue);
         }
     }
 
     //
-    private void updateAttemptedMap(Grid pair){
+    private void updateAttemptedMap(Grid grid){
 
         List<Grid> emptyGridList = this.getEmptyGridList();
         Map<Integer,List<Integer>> attemptedMap = this.getAttemptedNumberMap();
 
-        //Clear the attempted lists of pairs which the previous pair was assigned with a new number
+        //Clear the attempted lists of grids which the previous grid was assigned with a new number
         for (Grid tempPair : emptyGridList){
 
-            if (tempPair.getId() >= pair.getId()) {
+            if (tempPair.getId() >= grid.getId()) {
                 attemptedMap.get(tempPair.getId()).clear();
             }
 
@@ -179,8 +179,8 @@ public class SudoCalculator {
 
     }
 
-    //Affected IndexPairs after a pair changed
-    private List<Grid> getAffectedPairs(Grid pair){
+    //Affected grids after a grid changed
+    private List<Grid> getAffectedGrids(Grid grid){
 
         List<Grid> affectedPairs = new ArrayList<Grid>();
 
@@ -189,8 +189,8 @@ public class SudoCalculator {
         for (Grid tempPair : allPairs) {
 
             //Pairs in same line, same column, same 3*3 block
-            if (tempPair.getX() == pair .getX() || tempPair.getY() == pair .getY() || tempPair.getBlockId() == pair .getBlockId()) {
-                if (tempPair == pair) {
+            if (tempPair.getX() == grid .getX() || tempPair.getY() == grid .getY() || tempPair.getBlockId() == grid .getBlockId()) {
+                if (tempPair == grid) {
                     continue;
                 }
                 affectedPairs.add(tempPair);
@@ -202,47 +202,47 @@ public class SudoCalculator {
     }
 
     //
-    private Grid previousPair(Grid pair){
-        List<Grid> pairList = this.getEmptyGridList();
+    private Grid previousPair(Grid grid){
+        List<Grid> gridList = this.getEmptyGridList();
 
-        for (int i = 0; i < pairList.size(); i++) {
+        for (int i = 0; i < gridList.size(); i++) {
 
-            if (pairList.get(i) == pair) {
+            if (gridList.get(i) == grid) {
                 if (i==0) {
-                    Logger.getLogger("Sudoku").warning("Tried to find previous pair of array[0], it's wrong!");
+                    Logger.getLogger("Sudoku").warning("Tried to find previous grid of array[0], it's wrong!");
                     System.exit(1);
                 }
-                return pairList.get(i-1);
+                return gridList.get(i-1);
             }
         }
 
-        Logger.getLogger("Sudoku").warning("Can't previous pair, something wrong! the pair is: "+ pair);
+        Logger.getLogger("Sudoku").warning("Can't previous grid, something wrong! the grid is: "+ grid);
         System.exit(1);
 
         return null;
     }
 
-    private List<Integer> getAvailableNumbers(Grid pair){
-        int pairLine = pair.getX();
-        int pairColumn = pair.getY();
-        int pairBlockId = pair.getBlockId();
+    private List<Integer> getAvailableNumbers(Grid grid){
+        int gridLine = grid.getX();
+        int gridColumn = grid.getY();
+        int gridBlockId = grid.getBlockId();
 
         List<Integer> availableList = new ArrayList<>(Arrays.asList(fullNumbers));
 
         for (int k=0; k<9; k++) {
-            int number1 = sudokuTable[pairLine][k];
+            int number1 = sudokuTable[gridLine][k];
             if (number1 != 0) {
                 availableList.remove((Integer) number1);
             }
 
-            int number2 = sudokuTable[k][pairColumn];
+            int number2 = sudokuTable[k][gridColumn];
             if (number2 != 0) {
                 availableList.remove((Integer) number2);
             }
         }
 
-        int x = pairBlockId/10;
-        int y = pairBlockId - x*10;
+        int x = gridBlockId/10;
+        int y = gridBlockId - x*10;
 
         for (int m=0; m<3; m++) {
 
@@ -275,7 +275,7 @@ public class SudoCalculator {
     }
 
     //Load the IndexPairs which are empty originally
-    private void initEmptyIndexPairList(){
+    private void initEmptyGridList(){
 
         if (emptyGridList == null) {
             emptyGridList = new ArrayList<Grid>();
@@ -308,9 +308,9 @@ public class SudoCalculator {
 
         List<Grid> emptyGridList = this.getEmptyGridList();
 
-        for (Grid pair : emptyGridList){
-            List<Integer> availableNumbers = getAvailableNumbers(pair);
-            sudokuAvailableNumberMap.put(pair.getId(),availableNumbers);
+        for (Grid grid : emptyGridList){
+            List<Integer> availableNumbers = getAvailableNumbers(grid);
+            sudokuAvailableNumberMap.put(grid.getId(),availableNumbers);
         }
 
 
@@ -332,23 +332,23 @@ public class SudoCalculator {
 
     }
 
-    //After a number is assigned to a Index pair, update the available numbers map
-    private void updateAvailableNumbersMap(Grid pair, int chosenNumber){
+    //After a number is assigned to a Grid, update the available numbers map
+    private void updateAvailableNumbersMap(Grid grid, int chosenNumber){
 
-        List<Grid> affectedPairs = getAffectedPairs(pair);
+        List<Grid> affectedPairs = getAffectedGrids(grid);
 
         //remove the chosen number from affected Grid
-        for (Grid pair1 : affectedPairs) {
-            List availableNumbers = this.getAvailableNumbersMap().get(pair1.getId());
+        for (Grid grid1 : affectedPairs) {
+            List availableNumbers = this.getAvailableNumbersMap().get(grid1.getId());
             availableNumbers.remove((Integer)chosenNumber);
         }
 
     }
 
-    private void addIntoAttemptedMap(Grid pair, int chosenNumber){
-        int pairId = pair.getId();
+    private void addIntoAttemptedMap(Grid grid, int chosenNumber){
+        int gridId = grid.getId();
 
-        getAttemptedNumberMap().get(pairId).add(chosenNumber);
+        getAttemptedNumberMap().get(gridId).add(chosenNumber);
     }
 
     //initialize sudoku table
