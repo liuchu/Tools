@@ -21,8 +21,13 @@ public class SudoCalculator {
 
     private long attemptedTimes = 0;
 
-    private void init(){
-        initData();
+    private void setSudokuTable(int[][] input){
+        this.sudokuTable = input;
+    }
+
+    private void init(int[][] input){
+
+        setSudokuTable(input);
         initEmptyGridList();
         initAvailableNumbersMap();
         initAttemptedNumbersMap();
@@ -40,7 +45,7 @@ public class SudoCalculator {
     }
 
     //generate the result
-    public void calculate(){
+    private void calculate(){
 
         Map<Integer,List<Integer>> map = this.getAvailableNumbersMap();
 
@@ -274,7 +279,7 @@ public class SudoCalculator {
 
     }
 
-    //Load the IndexPairs which are empty originally
+    //Load the Grids which are empty originally
     private void initEmptyGridList(){
 
         if (emptyGridList == null) {
@@ -351,40 +356,39 @@ public class SudoCalculator {
         getAttemptedNumberMap().get(gridId).add(chosenNumber);
     }
 
-    //initialize sudoku table
-    private void initData(){
-
-        int[] line1Array = {2,0,7,0,0,5,0,1,0};
-        int[] line2Array = {0,0,0,0,2,8,0,0,9};
-        int[] line3Array = {5,0,0,0,1,0,7,0,0};
-        int[] line4Array = {0,0,8,0,0,0,0,5,0};
-        int[] line5Array = {0,0,3,6,0,9,4,0,0};
-        int[] line6Array = {0,2,0,0,0,0,8,0,0};
-        int[] line7Array = {0,0,4,0,9,0,0,0,5};
-        int[] line8Array = {3,0,0,5,4,0,0,0,0};
-        int[] line9Array = {0,9,0,2,0,0,6,0,3};
-
-        sudokuTable = new int[][]{
-                line1Array, line2Array, line3Array,
-                line4Array, line5Array, line6Array,
-                line7Array, line8Array, line9Array
-        };
-    }
-
     private int[][] getSudokuTable(){
         return this.sudokuTable;
     }
 
+    //A Sudoku table should be a 9*9 array
+    private void validateInput(int[][] input){
 
 
-    public static void main(String[] args) {
+
+        if (input.length != 9) {
+            System.out.println("ERROR! Input array lines amount must be 9");
+            System.exit(1);
+        }
+
+        /*for (int i=0; i<9; i++) {
+
+            int[] tempArray = sudokuTable[i];
+            if (tempArray.length != 9) {
+                System.out.println("ERROR! Input array columns amount must be 9");
+                System.exit(1);
+            }
+
+        }*/
+    }
+
+    public static void figure(int[][] input){
         SudoCalculator calculator = new SudoCalculator();
-        calculator.init();
+        calculator.validateInput(input);
+        calculator.init(input);
         calculator.calculate();
         calculator.printResult();
-
-
     }
+
 }
 
 
