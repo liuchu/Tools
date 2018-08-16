@@ -47,6 +47,13 @@ public class ArraySorterTest {
         commonValidateSort(testArray,result);
     }
 
+    @Test
+    public void sortByMerge() throws Exception {
+        int[] result = ArraySorter.sortByMerge(testArray);
+
+        commonValidateSort(testArray,result);
+    }
+
     private void commonValidateSort(int[] input, int[] output){
         if (input.length != output.length) {
             assertTrue("The length of origin array and target array is different!"+input.length+":"+output.length,false);

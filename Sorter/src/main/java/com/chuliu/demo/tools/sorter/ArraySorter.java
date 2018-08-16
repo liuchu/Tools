@@ -3,6 +3,7 @@ package com.chuliu.demo.tools.sorter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by eiuhucl on 8/9/2018.
@@ -101,33 +102,55 @@ public class ArraySorter {
     //归并
     public static int[] sortByMerge(int[] input){
 
-        return input;
+        int[] inputCopy = new int[input.length];
+        System.arraycopy(input, 0, inputCopy, 0, input.length);
+
+        sort(inputCopy, 0, inputCopy.length-1);
+
+        return inputCopy;
     }
 
-    //将两个有序数组合并成一个
-    private static int[] mergeOrderedArrays(int[] orderedArray1, int[] orderedArray2){
+    private static void sort(int[] array, int start, int end){
 
-        //int[] result = new int[orderedArray1.length+orderedArray2.length];
-        ArrayList<Integer> result = new ArrayList<>();
+        //分割 到 只有一个元素，不用再分
+        if (start == end) {
+            return;
+        }
 
+        int mid = (end + start)/2;
+        sort(array, start, mid); //左 子数组 排序
+        sort(array, mid+1, end);//右 子数组 排序
+        merge(array,start,end,mid);//合并 左右 子数组
+
+    }
+
+    //在一个数组内的两段有序数组， 合并成一段有序数组
+    //array[start,mid]为第一段，array[mid+1,end]为第二段
+    private static void merge(int[] array, int start, int end, int mid){
+
+        //使用ArrayList完成合并过程中值的存储
+        ArrayList<Integer> mergedList = new ArrayList<>();
+
+        int lengthOfSubArray1 =  mid - start + 1;
+        int lengthOfSubArray2 =  end - mid;
 
         int pos1 = 0;
-        int pos2 = orderedArray2.length;
+        int pos2 = lengthOfSubArray2;
 
-        outter_loop:for (int i=0; i<orderedArray2.length; i++) {
+        outter_loop:for (int i=0; i<lengthOfSubArray2; i++) {
 
-            for (int j=pos1;j<orderedArray1.length;j++) {
-                //System.out.println("Comparing "+orderedArray2[i]+" ? "+orderedArray1[j]);
-                if (orderedArray2[i] > orderedArray1[j]) {
-                    result.add(orderedArray1[j]);
+            for (int j=pos1;j<lengthOfSubArray1;j++) {
+
+                if (array[mid+i+1] > array[start+j]) {
+                    mergedList.add(array[start+j]);
                     pos1 = j+1;
                 } else {
-                    result.add(orderedArray2[i]);
+                    mergedList.add(array[mid+i+1]);
                     break;
                 }
 
                 //走到这个逻辑，说明最大的数在orderedArray2中
-                if (j == orderedArray1.length-1) {
+                if (j == lengthOfSubArray1-1) {
                     pos2 = i;
                     break outter_loop;
                 }
@@ -135,43 +158,46 @@ public class ArraySorter {
 
         }
 
-        /*System.out.println("pos1:"+pos1+" pos2:"+pos2);*/
-
         //for循环结束以后最后的部分元素并未进入List，额外添加
-        for (int m=pos1; m<orderedArray1.length; m++){
-            result.add(orderedArray1[m]);
+        for (int m=pos1; m<lengthOfSubArray1; m++){
+            mergedList.add(array[start+m]);
         }
 
-        for (int n=pos2; n<orderedArray2.length; n++){
-            result.add(orderedArray2[n]);
+        for (int n=pos2; n<lengthOfSubArray2; n++){
+            mergedList.add(array[mid+n+1]);
         }
 
-        //把List转化为Array
-        Integer[] resultArray = new Integer[result.size()];
-        result.toArray(resultArray);
+        //将合并后的结果 赋值给 传入的数组, 完成合并
+        for (int p=0;p<mergedList.size();p++) {
+            array[start+p] = mergedList.get(p);
+        }
 
-        int[] resultArray2 = new int[resultArray.length];
-
-        System.arraycopy(resultArray, 0, resultArray2, 0, resultArray.length);
-
-        return resultArray2;
-    }
-
-    private static void divideAndMerge(int[] array){
-
-        /*int[] inputCopy = new int[array.length];
-        int[] subArray1 = System.arraycopy(input, 0, inputCopy, 0, input.length);*/
+        //释放List
+        mergedList = null;
 
     }
-
 
     public static void main(String[] args) {
-        int[] testArray1 = new int[]{2};
+        /*int[] testArray1 = new int[]{2};
         int[] testArray2 = new int[]{1};
 
-        int[] result = mergeOrderedArrays(testArray1,testArray2);
+        int[] result = sortByMerge(testArray1,testArray2);
 
         for (int num:result)
-        System.out.print(num+":");
+        System.out.print(num+":");*/
+
+        int[] input = new int[]{2,1,9,3,5,4};
+        int[] result = sortByMerge(input);
+
+        for (int num:result)
+            System.out.print(num+":");
+
+        /*List<Integer> list = new ArrayList<>();
+        list.add(2);
+        list.add(1);
+        list.add(3);
+        for (int p=0;p<list.size();p++) {
+            System.out.print(list.get(p)+">>");
+        }*/
     }
 }
