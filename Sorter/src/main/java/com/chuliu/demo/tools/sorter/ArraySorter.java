@@ -118,8 +118,12 @@ public class ArraySorter {
         }
 
         int mid = (end + start)/2;
+
+        //将左右 子数组 排序
         sort(array, start, mid); //左 子数组 排序
         sort(array, mid+1, end);//右 子数组 排序
+
+        //合并左右 子数组
         merge(array,start,end,mid);//合并 左右 子数组
 
     }
@@ -177,6 +181,70 @@ public class ArraySorter {
 
     }
 
+    //快速排序
+    public static int[] sortByQuick(int[] input){
+        int[] inputCopy = new int[input.length];
+        System.arraycopy(input, 0, inputCopy, 0, input.length);
+
+        quickSort(inputCopy,0,inputCopy.length-1);
+
+        return inputCopy;
+    }
+
+    private static void quickSort(int[] array, int start, int end){
+
+        //当 基元素 恰好是 最大或最小 的数时，下一层的递归调用 会 超出数组范围，
+        if (start >= end) {//即 只有一个数
+            return;
+        }
+
+        //将 array[start, end]进行 快速排序
+        int indexOfBaseElement = start; //随着交换位置会变化
+        final int baseElement = array[start]; //不变
+
+        for (int i = start+1;i<end+1;i++) {
+
+            //将这个元素放到 基元素 的左边
+            //一旦元素比 基元素 小，(即实现)
+            if (baseElement > array[i]) {
+
+                //如果这个元素 就在 基元素 的右边，交换位置即可
+                if (i == indexOfBaseElement+1) {
+                    int temp1 = array[i];
+                    array[i] = baseElement;
+                    array[indexOfBaseElement] = temp1;
+
+                    //更新 base元素的角标
+                    indexOfBaseElement++;
+                    continue;
+                }
+
+                //如果这个元素 和 基元素 中间相隔了其他元素，将 基元素 和 后一位的元素 交换位置；再将 "后一位的元素" 和 这个元素交换元素
+                //将 基元素 和 后一位的元素 交换位置
+                int temp = array[indexOfBaseElement+1];
+                array[indexOfBaseElement+1] = baseElement;
+                //array[IndexOfBaseElement] = temp; //多余的步骤，放在这里方便理解
+
+                //将 "后一位的元素" 和 这个元素交换元素
+                array[indexOfBaseElement] = array[i];
+                array[i] = temp;
+
+                //更新 base元素的角标
+                indexOfBaseElement++;
+            }
+        }
+
+        //将当前 子数组 快速排序后，再将 基元素 左右的子数组 递归的进行一样的处理
+        if (indexOfBaseElement != start) {//如果 基元素 在最左边(最小)，无需排序 左子数组
+            quickSort(array,start,indexOfBaseElement-1);
+        }
+
+        if (indexOfBaseElement != end) {//如果 基元素 在最右边(最大)，无需排序 右子数组
+            quickSort(array,indexOfBaseElement+1,end);
+        }
+
+    }
+
     public static void main(String[] args) {
         /*int[] testArray1 = new int[]{2};
         int[] testArray2 = new int[]{1};
@@ -187,7 +255,7 @@ public class ArraySorter {
         System.out.print(num+":");*/
 
         int[] input = new int[]{2,1,9,3,5,4};
-        int[] result = sortByMerge(input);
+        int[] result = sortByQuick(input);
 
         for (int num:result)
             System.out.print(num+":");
