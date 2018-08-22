@@ -35,7 +35,7 @@ public class HttpRequest {
     private int timeout;
 
     //请求头信息
-    private Map<String,String> headerPropertyMap;
+    private Map<Property,String> headerPropertyMap;
 
     public String getUrl(){
         return this.url;
@@ -75,7 +75,7 @@ public class HttpRequest {
     }
 
     //调用此方法会完全覆盖原有的properties
-    public HttpRequest setPropertiesByMap(Map<String,String> newPropertyMap){
+    public HttpRequest setPropertiesByMap(Map<Property,String> newPropertyMap){
         this.headerPropertyMap = newPropertyMap;
         return this;
     }
@@ -88,15 +88,15 @@ public class HttpRequest {
         return proxy;
     }
 
-    public HttpRequest addProperty(String key, String value){
+    public HttpRequest addProperty(Property key, String value){
         if (this.getProperties() == null) {
-            setPropertiesByMap(new HashMap<String, String>());
+            setPropertiesByMap(new HashMap<Property, String>());
         }
         headerPropertyMap.put(key,value);
         return this;
     }
 
-    public Map<String,String> getProperties(){
+    public Map<Property,String> getProperties(){
         return this.headerPropertyMap;
     }
 
@@ -105,9 +105,13 @@ public class HttpRequest {
         return new HttpResponse(connection);
     }
 
+    //提供方法获取HttpURLConnection对象本身
+    private HttpURLConnection getHttpURLConnectionObject() {
+        return conn;
+    }
 
     //建立连接并发送请求
-    public HttpResponse execute(){
+    protected HttpResponse execute(){
 
         //初始化连接数据
         initConnection();
@@ -148,8 +152,8 @@ public class HttpRequest {
             }
 
             //设置请求的头属性，如contentType，accept等等
-            for (String key : this.getProperties().keySet()) {
-                conn.setRequestProperty(key,this.getProperties().get(key));
+            for (Property key : this.getProperties().keySet()) {
+                conn.setRequestProperty(key.toString(),this.getProperties().get(key));
             }
 
             //设置请求方法
@@ -176,9 +180,10 @@ public class HttpRequest {
 
             //如果有request body,则用输出流写出
             if (!"".equals(getRequestBody())) {
-                try {
-                    OutputStream outputStream = conn.getOutputStream();
+
+                try (OutputStream outputStream = conn.getOutputStream()) {
                     outputStream.write(getRequestBody().getBytes("UTF-8"));
+                    outputStream.flush();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -186,11 +191,5 @@ public class HttpRequest {
         }
 
     }
-
-    HttpRequest(){
-
-    }
-
-
 
 }

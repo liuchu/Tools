@@ -20,31 +20,16 @@ public class HttpClient {
         }
 
         //调用发送请求
-        request.execute();
+        HttpResponse response = request.execute();
 
-        return null;
+        return response;
     }
 
     private static boolean validateRequestObject(){
         return true;
     }
 
-    public static void main(String[] args) {
 
-        HttpRequest request = HttpClient.createRequest().url("http://www.baidu.com").method(Method.GET)
-                .requestBody("");
-
-        HttpResponse response = HttpClient.call(request);
-
-        if (response != null) {
-            int httpStatus = response.getStatusCode();
-
-            String responseBody = response.getResponseBodyString();
-
-            System.out.println(httpStatus+responseBody);
-        }
-
-    }
 
 
 }
