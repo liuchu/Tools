@@ -1,12 +1,12 @@
 package com.chuliu.demo.tools.httpclient;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -95,6 +95,14 @@ public class HttpRequest {
         headerPropertyMap.put(key,value);
         return this;
     }
+
+    public HttpRequest addAuthorization(String username, String password){
+        String userPass = username + ":" + password;
+        String basicAuthInfo = "Basic " + new String(Base64.getEncoder().encode(userPass.getBytes()));
+        return addProperty(Property.AUTHORIZATION,basicAuthInfo);
+    }
+
+
 
     public Map<Property,String> getProperties(){
         return this.headerPropertyMap;
