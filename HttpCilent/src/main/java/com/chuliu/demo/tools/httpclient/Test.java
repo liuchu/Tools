@@ -23,7 +23,8 @@ public class Test {
 
     public static void main(String[] args) {
 
-        /*HttpRequest request = HttpClient.createRequest().url("https://www.baidu.com").method(Method.GET).timeout(6000).
+        //GET
+        HttpRequest request = HttpClient.createRequest().url("https://www.baidu.com").method(Method.GET).timeout(6000).
                 addProperty(Property.CONTENT_TYPE,"text/html").addProperty(Property.CONNECTION,"keep-alive");
 
         HttpResponse response = HttpClient.call(request);
@@ -34,9 +35,10 @@ public class Test {
             String responseBody = response.getResponseBodyString();
 
             System.out.println(httpStatus+responseBody);
-        }*/
+        }
 
-        String url = "http://localhost:8081/nbi/deliverysession?session_id=1";
+        //POST
+        /*String url = "http://localhost:8081/nbi/deliverysession?session_id=1";
         String requestBody = "username=chu&age=18";
         HttpRequest request1 = HttpClient.createRequest().url(url).method(Method.POST).timeout(2000)
                 .addProperty(Property.CONTENT_TYPE,"text/plain")
@@ -49,6 +51,14 @@ public class Test {
             String responseBody = response1.getResponseBodyString();
 
             System.out.println(httpStatus+responseBody);
-        }
+        }*/
+
+        //File download
+        HttpRequest fileUploadRequest = HttpClient.createRequest().url("https://www.baidu.com").method(Method.POST).timeout(6000).
+                addProperty(Property.CONTENT_TYPE,"text/html;boundary=---------------------------7d33a816d302b6").addProperty(Property.CONNECTION,"keep-alive");
+
+        //fileUploadRequest
+        //File upload
+
     }
 }

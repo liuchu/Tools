@@ -47,6 +47,9 @@ public enum Property {
     /**请求的内容长度*/
     CONTENT_LENGTH("Content-Length"),
 
+    /**认证 */
+    AUTHORIZATION("Authorization"),
+
     //------------------------------------------------------------- 响应头域
     /**Cookie*/
     SET_COOKIE("Set-Cookie"),
