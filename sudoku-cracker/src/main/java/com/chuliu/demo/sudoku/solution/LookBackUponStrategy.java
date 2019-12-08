@@ -30,6 +30,8 @@ public class LookBackUponStrategy extends AbstractCrackStrategy {
 
         while (iter.hasNext()) {
 
+            sum++;
+
             BlankCell current = iter.next();
 
             boolean chosen = chooseOne(current);
@@ -37,38 +39,22 @@ public class LookBackUponStrategy extends AbstractCrackStrategy {
             if (!chosen) {
 
                 // if first cell can't choose a value, the puzzle has so solution
-                if (iter.hasPrevious()) {
+                if (!iter.hasPrevious()) {
                     throw new NoSolutionException("This sudoku can't be solved");
                 }
 
-                BlankCell prev = iter.previous();
+                //
+                iter.previous();
+
+                BlankCell prev;
+                try {
+                    prev = iter.previous();
+                } catch (NoSuchElementException e) {
+                    throw new NoSolutionException("This sudoku can't be solved");
+                }
 
                 // last cell have to give up its current val
                 giveUp(blankCells, blankCells.indexOf(prev));
-
-            }
-        }
-
-        for (int i = 0; i < blankCells.size(); i++) {
-            sum ++;
-
-            BlankCell blankCell = blankCells.get(i);
-
-            boolean chosen = chooseOne(blankCell);
-
-            if (!chosen) {
-
-                // if first cell can't choose a value, the puzzle has so solution
-                if (i == 0) {
-                    throw new NoSolutionException("This sudoku can't be solved");
-                }
-
-                i = i - 1;
-
-                // last cell have to give up its current val
-                giveUp(blankCells, i);
-
-                i = i - 1;
             }
         }
 
@@ -83,33 +69,33 @@ public class LookBackUponStrategy extends AbstractCrackStrategy {
      */
     private boolean chooseOne(BlankCell blankCell) {
 
-        Map<Integer, Boolean> candidates = blankCell.getCandidates();
+        Map<Integer, Candidate> candidates = blankCell.getCandidates();
 
-        for (Map.Entry<Integer, Boolean> firstPick : candidates.entrySet()) {
+        for (Candidate candidate : candidates.values()) {
 
-            int val = firstPick.getKey();
-            boolean valid = firstPick.getValue();
+            int val = candidate.getValue();
+            boolean state = candidate.getState();
+            int readyDepth = candidate.getReadyDepth();
 
             // only valid number can be chosen
-            if (valid) {
+            if (state && readyDepth == 0) {
 
                 // choose
                 blankCell.setValue(val);
 
                 // once chosen, make it invalid(a number could be attempted 1 times, unless previous Cell giveUp a number)
-                candidates.put(val, false);
+                candidate.setState(false);
 
                 // update relative cells' candidates, and record to chosenAffectCells
                 final Set<BlankCell> relativeBlankCells = blankCell.getRelativeBlankCells();
                 Set<BlankCell> changedCells = new HashSet<>();
                 for (BlankCell item : relativeBlankCells) {
 
-                    Map<Integer, Boolean> itemCandidates = item.getCandidates();
+                    Candidate itemCandidate = item.getCandidates().get(val);
 
-                    if (itemCandidates.get(val) != null && itemCandidates.get(val)) {
+                    if (itemCandidate != null) {
 
-                        // make val invalid in affect cells
-                        itemCandidates.put(val, false);
+                        itemCandidate.setReadyDepth(itemCandidate.getReadyDepth() - 1);
 
                         changedCells.add(item);
                     }
@@ -117,12 +103,6 @@ public class LookBackUponStrategy extends AbstractCrackStrategy {
                 }
 
                 blankCell.setChosenAffectCells(changedCells);
-
-/*                System.out.println(blankCell);
-                System.out.println("---");
-                affectBlanksCells.forEach(System.out::println);
-                System.out.println("---");
-                changedCells.forEach(System.out::println);*/
 
                 return true;
             }
@@ -138,10 +118,6 @@ public class LookBackUponStrategy extends AbstractCrackStrategy {
         // giveUp number
         Integer giveUpVal = blankCell.getValue();
         // candidates
-        //Map<Integer, Boolean> candidates = blankCell.getCandidates();
-
-        // give up this number from candidates
-        //candidates.put(giveUpVal, false);
 
         // reset to 0
         blankCell.setValue(ZERO);
@@ -149,7 +125,10 @@ public class LookBackUponStrategy extends AbstractCrackStrategy {
         // restore the giveUpVal to chosenAffectCells, per blankCell gave up it
         Set<BlankCell> chosenAffectCells = blankCell.getChosenAffectCells();
         for (BlankCell item : chosenAffectCells) {
-            item.getCandidates().put(giveUpVal, true);
+            Candidate candidate = item.getCandidates().get(giveUpVal);
+
+            candidate.setReadyDepth(candidate.getReadyDepth() + 1);
+
         }
 
         // make all candidates valid(blank cells after current cell)

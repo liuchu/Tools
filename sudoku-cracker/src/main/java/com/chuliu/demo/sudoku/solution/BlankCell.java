@@ -1,6 +1,5 @@
 package com.chuliu.demo.sudoku.solution;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,13 +12,7 @@ import java.util.Set;
  */
 class BlankCell extends Cell {
 
-    /**
-     * candidates of a blank cell.
-     * <p>
-     * key, the value
-     * value, whether valid; invalid numbers can't be choose(a part of mechanism how {@link LookBackUponStrategy} work)
-     */
-    private Map<Integer, Boolean> candidates;
+    private Map<Integer, Candidate> candidates;
 
     /**
      * cells in Soduku matrix whose row, column, or block is same as current cell's
@@ -36,17 +29,17 @@ class BlankCell extends Cell {
         super(row, column, value);
     }
 
-    Map<Integer, Boolean> getCandidates() {
+    public Map<Integer, Candidate> getCandidates() {
         return candidates;
     }
 
-    void setCandidates(Map<Integer, Boolean> candidates) {
+    public void setCandidates(Map<Integer, Candidate> candidates) {
         this.candidates = candidates;
     }
 
     void makeAllCandidatesValid() {
-        for (Integer key : candidates.keySet()) {
-            candidates.put(key, true);
+        for (Candidate candidate : candidates.values()) {
+            candidate.setState(true);
         }
     }
 

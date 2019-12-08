@@ -31,14 +31,16 @@ public class SudokuCrackerTest {
                 line7Array, line8Array, line9Array
         };
 
+        print(input);
 
         int[][] output = SudokuCracker.compute(input);
 
-        printResult(output);
+        System.out.println("The result after calculate:");
+        print(output);
     }
 
-    private void printResult(int[][] arr) {
-        System.out.println("The result after calculate:");
+    private void print(int[][] arr) {
+
         for (int i = 0; i < 9; i++) {
 
             for (int j = 0; j < 9; j++) {

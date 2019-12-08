@@ -3,7 +3,6 @@ package com.chuliu.demo.sudoku.solution;
 import com.chuliu.demo.sudoku.exception.NoSolutionException;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -102,9 +101,12 @@ public class SodukuMatrix {
             Set<Integer> usingNumbers =
                     affectCells.stream().filter(c -> c.getValue() != 0).map(Cell::getValue).collect(Collectors.toSet());
 
-            // candidates
-            Map<Integer, Boolean> candidates =
-                    NUMBERS.stream().filter(n -> !usingNumbers.contains(n)).collect(Collectors.toMap(Function.identity(), n -> true));
+            Map<Integer, Candidate> candidates = new HashMap<>();
+
+            NUMBERS.stream()
+                    .filter(n -> !usingNumbers.contains(n))
+                    .map(n -> new Candidate(n, true, 0))
+                    .forEach(c -> candidates.put(c.getValue(), c));
 
             if (candidates.size() == 0) {
                 throw new NoSolutionException(String.format("This sudoku can't be solved, per cell[%s, %s]", item.getRow(), item.getRow()));
